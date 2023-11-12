@@ -165,13 +165,13 @@ class PostsList(ListView):
 
 
 # Create your views here.
-class Responses(ListView):
+class Responses(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'app/responses.html'
     context_object_name = 'posts'
     # queryset = Post.objects.order_by('-id')
     paginate_by = 10 # поставим постраничный вывод в один элемент
-    # form_class = PostForm
+
      
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
