@@ -1,0 +1,83 @@
+<!--  наследуемся от шаблона base.html -->
+{% extends 'layout/base.html' %}
+
+{% block title %}
+Лента объявлений
+{% endblock title %}
+
+{% block content %}
+
+<!-- {% load cache %} Загружаем кэширование -->
+    <!-- {% cache 30 headerPosts %} Кэшируем отдельный блок на 30 секунд -->
+<center><h1>Лента объявлений</h1></center>
+
+    <!-- {% endcache %} -->
+
+{% if posts %}
+
+
+
+    {% for post in posts %}
+    
+    <!--Section: News of the day-->
+<div class="row gx-5">
+    <div class="col-md-6 mb-4">
+        <div class="bg-image hover-overlay ripple shadow-2-strong rounded-5" data-mdb-ripple-color="light">
+            <img src="{{ post.image.url}}" class="img-fluid" />
+            <a href="#!">
+                <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        @{{post.user}} - {{ post.date_create|date:'d M Y' }}
+        <h4><strong>{{ post.title }}</strong></h4>
+        <span class="badge bg-success px-2 py-1 shadow-1-strong mb-3">{{ post.category }} </span>
+        <p class="text-muted">
+            {{ post.content|truncatechars:150}}
+        </p>
+        <p>Всего откликов: <span class="badge bg-success me-3">{{ post.number_of_comments }}</span></p>
+        <a href="{% url 'app:post_detail' post.id %}">
+            <!-- здесь
+                news -- название приложения, которое задано в urls.py с помощью директивы app_name,
+                post_detail -- название ссылки в списке эндпойнтов urlpatterns,
+                post.id -- id объекта, который передаётся в качестве через эндпойнт и подставляется вместо <int:pk>
+                    -->
+
+            <button type="button" class="btn btn-primary">Смотреть полностью</button>
+        </a>
+        {% if user.is_authenticated %} 
+        <a href="{% url 'app:post_update' post.id %}">
+            <!-- здесь
+                news -- название приложения, которое задано в urls.py с помощью директивы app_name,
+                post_detail -- название ссылки в списке эндпойнтов urlpatterns,
+                post.id -- id объекта, который передаётся в качестве через эндпойнт и подставляется вместо <int:pk>
+                    -->
+
+            <button type="button" class="btn btn-primary">Редактировать</button>
+        </a>
+        <a href="{% url 'app:post_delete' post.id %}">
+            <!-- здесь
+                news -- название приложения, которое задано в urls.py с помощью директивы app_name,
+                post_detail -- название ссылки в списке эндпойнтов urlpatterns,
+                post.id -- id объекта, который передаётся в качестве через эндпойнт и подставляется вместо <int:pk>
+                    -->
+
+            <button type="button" class="btn btn-danger"">Удалить</button>
+        </a>
+        {% endif %}
+    </div>
+
+</div>
+    {% endfor %}
+</table>
+
+<!-- Заменили код пагинатора на подключение шаблона с этим кодом -->
+{% include 'app/parts/paginator.html' %}
+
+{% else %}
+<!-- Если продуктов нет, то сообщаем об этом пользователю  -->
+<h2>Объявлений нет!</h2>
+{% endif %}
+{% endblock content %}

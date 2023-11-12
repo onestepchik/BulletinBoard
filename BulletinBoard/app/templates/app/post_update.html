@@ -1,0 +1,31 @@
+{% extends 'layout/base.html' %}
+{% block title %}
+{{ post.title }}
+{% endblock title %}
+
+{% block content %}
+
+<div class="card mb-3">
+    <img src="{{ post.image.url}}" class="card-img-top" alt=""/>
+    <div class="card-body">
+        <h6 class="text-muted">@{{ post.user.username }} - {{ post.category }}</h6>
+        <h5 class="card-title">{{ post.title }}</h5>
+    
+      <p class="card-text">
+        {{ post.content }}
+      </p>
+      <p class="card-text">
+        <small class="text-muted">{{ post.date_create|date:'d M Y h:m' }}</small>
+      </p>
+    </div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form }}
+      <!-- Теперь нам нужна только готовая форма и кнопка -->
+      
+      <input class="btn btn-success" type="submit" value="Сохранить">
+   </form>
+
+{% endblock content %}

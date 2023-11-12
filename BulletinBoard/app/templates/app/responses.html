@@ -1,0 +1,136 @@
+<!--  наследуемся от шаблона base.html -->
+{% extends 'layout/base.html' %}
+
+
+{% block title %}
+Управление моими публикациями
+{% endblock title %}
+
+{% block content %}
+
+<!-- {% load cache %} Загружаем кэширование -->
+    <!-- {% cache 30 headerPosts %} Кэшируем отдельный блок на 30 секунд -->
+<center><h1>Управление моими публикациями</h1></center>
+<hr>
+
+    <!-- {% endcache %} -->
+
+{% if posts %}
+
+<form method="GET">
+    {{ filter.form }}
+    <!-- Форму от фильтров за нас сделает Django. А вот кнопку, увы, придётся делать самим -->
+    <input class="btn btn-info" type="submit" value="Найти">
+</form>
+<hr>
+
+    {% for post in filter.qs %}
+    
+    <!--Section: News of the day-->
+<div class="row gx-5">
+    <div class="col-md-6 mb-4">
+        <div class="bg-image hover-overlay ripple shadow-2-strong rounded-5" data-mdb-ripple-color="light">
+            <img src="{{ post.image.url}}" class="img-fluid" />
+            <a href="#!">
+                <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        @{{post.user}} - {{ post.date_create|date:'d M Y' }}
+        <h4><strong>{{ post.title }}</strong></h4>
+        <span class="badge bg-success px-2 py-1 shadow-1-strong mb-3">{{ post.category }} </span>
+        <p class="text-muted">
+            {{ post.content|truncatechars:150}}
+        </p>
+        <p>Всего откликов: <span class="badge bg-success me-3">{{ post.number_of_comments }}</span></p>
+        <a href="{% url 'app:post_detail' post.id %}">
+            <!-- здесь
+                news -- название приложения, которое задано в urls.py с помощью директивы app_name,
+                post_detail -- название ссылки в списке эндпойнтов urlpatterns,
+                post.id -- id объекта, который передаётся в качестве через эндпойнт и подставляется вместо <int:pk>
+                    -->
+
+            <button type="button" class="btn btn-primary">Смотреть полностью</button>
+        </a>
+        {% if user.is_authenticated %} 
+        <a href="{% url 'app:post_update' post.id %}">
+            <!-- здесь
+                news -- название приложения, которое задано в urls.py с помощью директивы app_name,
+                post_detail -- название ссылки в списке эндпойнтов urlpatterns,
+                post.id -- id объекта, который передаётся в качестве через эндпойнт и подставляется вместо <int:pk>
+                    -->
+
+            <button type="button" class="btn btn-primary">Редактировать</button>
+        </a>
+        <a href="{% url 'app:post_delete' post.id %}">
+            <!-- здесь
+                news -- название приложения, которое задано в urls.py с помощью директивы app_name,
+                post_detail -- название ссылки в списке эндпойнтов urlpatterns,
+                post.id -- id объекта, который передаётся в качестве через эндпойнт и подставляется вместо <int:pk>
+                    -->
+
+            <button type="button" class="btn btn-danger"">Удалить</button>
+        </a>
+        {% endif %}
+    </div>
+
+</div>
+<hr>
+{% if post.number_of_comments > 0 %}
+
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Пользователь</th>
+        <th scope="col">Дата</th>
+        <th scope="col">Сообщение</th>
+        <th scope="col">Дата ответа на отклик</th>
+        <th scope="col">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+{% for comment in post.getComments%}
+      <tr>
+        <th scope="row">1</th>
+        <td>{{comment.user}}</td>
+        <td>{{comment.date_create}}</td>
+        <td>{{comment.message}}</td>
+        <td>{{comment.date_accepted}}</td>
+        <td>{% if comment.isAccepted %}
+            <a href="{% url 'app:decline_response' comment.id %}">
+                <button type="button" class="btn btn-danger">Отменить отклик</button>
+            </a>
+        {% else %}
+        <a href="{% url 'app:accept_response' comment.id %}">
+            <button type="button" class="btn btn-success">Принять отклик</button>
+        </a>
+        {% endif %}
+        <a href="{% url 'app:delete_response' comment.id %}">
+            <button type="button" class="btn btn-danger">Удалить отклик</button>
+        </a>
+        </td>
+      </tr>
+{% endfor %}
+{% else %}
+<p class="text-muted">
+    Откликов пока нет
+</p>
+{% endif %}
+</tbody>
+</table>
+
+    {% endfor %}
+</table>
+
+<!-- Заменили код пагинатора на подключение шаблона с этим кодом -->
+{% include 'app/parts/paginator.html' %}
+
+{% else %}
+<!-- Если продуктов нет, то сообщаем об этом пользователю  -->
+<h2>Объявлений нет!</h2>
+
+{% endif %}
+{% endblock content %}
